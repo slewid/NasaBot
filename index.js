@@ -9,6 +9,13 @@ const app = new App({
   socketMode: true
 });
 
+const nasa = axios.create({
+  baseURL: "https://api.nasa.gov/planetary",
+  params: {
+    api_key: process.env.APOD_API_KEY
+  }
+});
+
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   const start = Date.now();
   await ack();
@@ -33,7 +40,7 @@ app.command("/nasabot-apod", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await axios.get(`https://api.nasa.gov/planetary/apod?api_key=${process.env.APOD_API_KEY}`);
+    const response = await nasa.get(`/apod?api_key=${process.env.APOD_API_KEY}`);
     const apod = response.data;
 
     // Limit explanation length
@@ -86,7 +93,7 @@ app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await axios.get(`https://api.nasa.gov/planetary/apod?api_key=${process.env.APOD_API_KEY}`);
+    const response = await nasa.get(`/apod?api_key=${process.env.APOD_API_KEY}`);
     const apod = response.data;
 
     // Limit explanation length
@@ -139,7 +146,7 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await axios.get(`https://api.nasa.gov/planetary/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
+    const response = await nasa.get(`/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
     const apod = response.data[0];
 
     // Limit explanation length
@@ -192,7 +199,7 @@ app.command("/nasabot-hd-random", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await axios.get(`https://api.nasa.gov/planetary/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
+    const response = await nasa.get(`/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
     const apod = response.data[0];
 
     // Limit explanation length
