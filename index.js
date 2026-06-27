@@ -107,10 +107,8 @@ registerAPODCommand("/nasabot-hd-random", {
 });
 
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
-  const start = Date.now();
   await ack();
-  const latency = Date.now() - start;
-  await respond({ text: `Pong!\nLatency: ${latency}ms` });
+  await respond({ text: `Pong!` });
 });
 
 app.command("/nasabot-help", async ({ ack, respond }) => {
