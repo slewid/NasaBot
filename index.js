@@ -3,12 +3,14 @@ require("dotenv").config();
 const axios = require("axios");
 const { App } = require("@slack/bolt");
 
+// Initialise slack bot
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true
 });
 
+// Axios client config for NASA APOD API
 const nasa = axios.create({
   baseURL: "https://api.nasa.gov/planetary",
   timeout: 100000,
@@ -17,6 +19,7 @@ const nasa = axios.create({
   }
 });
 
+// Fetch APOD from API
 async function fetchApod({ random = false } = {}) {
     const { data } = await nasa.get("/apod", {
         params: random ? { count: 1 } : {}
@@ -25,15 +28,18 @@ async function fetchApod({ random = false } = {}) {
     return random ? data[0] : data;
 }
 
+// shorten long APOD descriptions for slack messages
 function formatExplanation(text) {
     return text.length > 500 
     ? text.substring(0, 500) + "..." 
     : text;
 }
 
+// send APOD response to slack
 async function sendAPOD(respond, apod, hd) {
     const explanation = formatExplanation(apod.explanation);
 
+    // display image with slack image block
     if (apod.media_type === "image") {
         await respond({
             blocks: [
@@ -55,6 +61,7 @@ async function sendAPOD(respond, apod, hd) {
             ]
         });
     } else {
+        // handle videos
         await respond({
             type: "mrkdwn",
             text:
@@ -66,6 +73,7 @@ async function sendAPOD(respond, apod, hd) {
     }
 }
 
+// register APOD command with its config
 function registerAPODCommand(command, { random, hd }) {
     app.command(command, async({ ack, respond }) => {
         await ack();
@@ -85,6 +93,7 @@ function registerAPODCommand(command, { random, hd }) {
     })
 }
 
+// register all APOD commands
 registerAPODCommand("/nasabot-apod", {
     random: false,
     hd: false
@@ -105,11 +114,13 @@ registerAPODCommand("/nasabot-hd-random", {
     hd: true
 });
 
+// check if bot is online
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   await ack();
   await respond({ text: `Pong!` });
 });
 
+// display all commands
 app.command("/nasabot-help", async ({ ack, respond }) => {
   await ack();
   await respond({
@@ -123,6 +134,7 @@ app.command("/nasabot-help", async ({ ack, respond }) => {
   });
 });
 
+// start the bot
 (async () => {
   await app.start();
   console.log("bot is running!");
