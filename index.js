@@ -26,6 +26,12 @@ async function fetchApod({ random = false } = {}) {
     return random ? response.data[0] : response.data;
 }
 
+function formatExplanation(text) {
+    return text.length > 500 
+    ? text.substring(0, 500) + "..." 
+    : text;
+}
+
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   const start = Date.now();
   await ack();
@@ -53,10 +59,7 @@ app.command("/nasabot-apod", async ({ ack, respond }) => {
     const apod = await fetchApod();
 
     // Limit explanation length
-    const explanation =
-      apod.explanation.length > 500
-        ? apod.explanation.substring(0, 500) + "..."
-        : apod.explanation;
+    const explanation = formatExplanation(apod.explanation);
 
     if (apod.media_type === "image") {
       await respond({
@@ -105,10 +108,8 @@ app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
     const apod = await fetchApod();
 
     // Limit explanation length
-    const explanation =
-      apod.explanation.length > 500
-        ? apod.explanation.substring(0, 500) + "..."
-        : apod.explanation;
+    const explanation = formatExplanation(apod.explanation);
+
 
     if (apod.media_type === "image") {
       await respond({
@@ -157,10 +158,8 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
     const apod = await fetchApod( {random: true} );
 
     // Limit explanation length
-    const explanation =
-      apod.explanation.length > 500
-        ? apod.explanation.substring(0, 500) + "..."
-        : apod.explanation;
+    const explanation = formatExplanation(apod.explanation);
+
 
     if (apod.media_type === "image") {
       await respond({
@@ -209,10 +208,8 @@ app.command("/nasabot-hd-random", async ({ ack, respond }) => {
     const apod = await fetchApod({random: true});
 
     // Limit explanation length
-    const explanation =
-      apod.explanation.length > 500
-        ? apod.explanation.substring(0, 500) + "..."
-        : apod.explanation;
+    const explanation = formatExplanation(apod.explanation);
+
 
     if (apod.media_type === "image") {
       await respond({
