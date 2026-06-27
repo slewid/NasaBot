@@ -42,6 +42,7 @@ async function sendAPOD(respond, apod, hd) {
     // display image with slack image block
     if (apod.media_type === "image") {
         await respond({
+            response_type: "in_channel",
             blocks: [
                 {
                     type: "section",
@@ -63,6 +64,7 @@ async function sendAPOD(respond, apod, hd) {
     } else {
         // handle videos
         await respond({
+            response_type: "in_channel",
             type: "mrkdwn",
             text:
                 `*${apod.title}*\n` + 
