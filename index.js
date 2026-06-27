@@ -11,6 +11,7 @@ const app = new App({
 
 const nasa = axios.create({
   baseURL: "https://api.nasa.gov/planetary",
+  timeout: 100000,
   params: {
     api_key: process.env.APOD_API_KEY
   }
