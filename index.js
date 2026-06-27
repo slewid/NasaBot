@@ -16,6 +16,16 @@ const nasa = axios.create({
   }
 });
 
+async function fetchApod({ random = false } = {}) {
+    const endpoint = random 
+        ? `/apod?count=1`
+        : `/apod?`;
+    
+    const response = await nasa.get(endpoint);
+
+    return random ? response.data[0] : response.data;
+}
+
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   const start = Date.now();
   await ack();
@@ -40,8 +50,7 @@ app.command("/nasabot-apod", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await nasa.get(`/apod?api_key=${process.env.APOD_API_KEY}`);
-    const apod = response.data;
+    const apod = await fetchApod();
 
     // Limit explanation length
     const explanation =
@@ -93,8 +102,7 @@ app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await nasa.get(`/apod?api_key=${process.env.APOD_API_KEY}`);
-    const apod = response.data;
+    const apod = await fetchApod();
 
     // Limit explanation length
     const explanation =
@@ -146,8 +154,7 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await nasa.get(`/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
-    const apod = response.data[0];
+    const apod = await fetchApod( {random: true} );
 
     // Limit explanation length
     const explanation =
@@ -199,8 +206,7 @@ app.command("/nasabot-hd-random", async ({ ack, respond }) => {
   await ack();
 
   try {
-    const response = await nasa.get(`/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
-    const apod = response.data[0];
+    const apod = await fetchApod({random: true});
 
     // Limit explanation length
     const explanation =
