@@ -117,7 +117,7 @@ app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
           },
           {
             type: "image",
-            image_url: apod.hdurl,
+            image_url: apod.hdurl || apod.url,
             alt_text: apod.title
           }
         ]
@@ -223,7 +223,7 @@ app.command("/nasabot-hd-random", async ({ ack, respond }) => {
           },
           {
             type: "image",
-            image_url: apod.hdurl,
+            image_url: apod.hdurl || apod.url,
             alt_text: apod.title
           }
         ]
