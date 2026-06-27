@@ -32,6 +32,41 @@ function formatExplanation(text) {
     : text;
 }
 
+async function sendAPOD(respond, apod, hd) {
+    const explanation = formatExplanation(apod.explanation);
+
+    if (apod.media_type === "image") {
+        await respond({
+            blocks: [
+                {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text:
+                            `*${apod.title}*\n` +
+                            `*Date:* ${apod.date}\n\n` +
+                            `${explanation}`
+                    }
+                },
+                {
+                    type: "image",
+                    image_url: hd && apod.hdurl ? apod.hdurl : apod.url,
+                    alt_text: apod.title
+                }
+            ]
+        });
+    } else {
+        await respond({
+            type: "mrkdwn",
+            text:
+                `*${apod.title}*\n` + 
+                `Date: ${apod.date}\n\n` +
+                `${explanation}\n\n` +
+                `${apod.url}`
+        });
+    }
+}
+
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   const start = Date.now();
   await ack();
@@ -58,40 +93,8 @@ app.command("/nasabot-apod", async ({ ack, respond }) => {
   try {
     const apod = await fetchApod();
 
-    // Limit explanation length
-    const explanation = formatExplanation(apod.explanation);
+    sendAPOD(respond, apod, false);
 
-    if (apod.media_type === "image") {
-      await respond({
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text:
-                `*${apod.title}*\n` +
-                `*Date:* ${apod.date}\n\n` +
-                `${explanation}`
-            }
-          },
-          {
-            type: "image",
-            image_url: apod.url,
-            alt_text: apod.title
-          }
-        ]
-      });
-    } else {
-      // Handle videos (e.g., YouTube)
-      await respond({
-        type: "mrkdwn",
-        text:
-          `*${apod.title}*\n` +
-          `Date: ${apod.date}\n\n` +
-          `${explanation}\n\n` +
-          `${apod.url}`
-      });
-    }
   } catch (err) {
     console.error(err);
 
@@ -106,42 +109,8 @@ app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
 
   try {
     const apod = await fetchApod();
+    sendAPOD(respond, apod, true);
 
-    // Limit explanation length
-    const explanation = formatExplanation(apod.explanation);
-
-
-    if (apod.media_type === "image") {
-      await respond({
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text:
-                `*${apod.title}*\n` +
-                `*Date:* ${apod.date}\n\n` +
-                `${explanation}`
-            }
-          },
-          {
-            type: "image",
-            image_url: apod.hdurl || apod.url,
-            alt_text: apod.title
-          }
-        ]
-      });
-    } else {
-      // Handle videos (e.g., YouTube)
-      await respond({
-        type: "mrkdwn",
-        text:
-          `*${apod.title}*\n` +
-          `Date: ${apod.date}\n\n` +
-          `${explanation}\n\n` +
-          `${apod.url}`
-      });
-    }
   } catch (err) {
     console.error(err);
 
@@ -156,42 +125,8 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
 
   try {
     const apod = await fetchApod( {random: true} );
-
-    // Limit explanation length
-    const explanation = formatExplanation(apod.explanation);
-
-
-    if (apod.media_type === "image") {
-      await respond({
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text:
-                `*${apod.title}*\n` +
-                `*Date:* ${apod.date}\n\n` +
-                `${explanation}`
-            }
-          },
-          {
-            type: "image",
-            image_url: apod.url,
-            alt_text: apod.title
-          }
-        ]
-      });
-    } else {
-      // Handle videos (e.g., YouTube)
-      await respond({
-        type: "mrkdwn",
-        text:
-          `*${apod.title}*\n` +
-          `Date: ${apod.date}\n\n` +
-          `${explanation}\n\n` +
-          `${apod.url}`
-      });
-    }
+    sendAPOD(respond, apod, false);
+    
   } catch (err) {
     console.error(err);
 
@@ -206,42 +141,8 @@ app.command("/nasabot-hd-random", async ({ ack, respond }) => {
 
   try {
     const apod = await fetchApod({random: true});
-
-    // Limit explanation length
-    const explanation = formatExplanation(apod.explanation);
-
-
-    if (apod.media_type === "image") {
-      await respond({
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text:
-                `*${apod.title}*\n` +
-                `*Date:* ${apod.date}\n\n` +
-                `${explanation}`
-            }
-          },
-          {
-            type: "image",
-            image_url: apod.hdurl || apod.url,
-            alt_text: apod.title
-          }
-        ]
-      });
-    } else {
-      // Handle videos (e.g., YouTube)
-      await respond({
-        type: "mrkdwn",
-        text:
-          `*${apod.title}*\n` +
-          `Date: ${apod.date}\n\n` +
-          `${explanation}\n\n` +
-          `${apod.url}`
-      });
-    }
+    sendAPOD(respond, apod, true);
+    
   } catch (err) {
     console.error(err);
 
