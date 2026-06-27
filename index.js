@@ -17,13 +17,11 @@ const nasa = axios.create({
 });
 
 async function fetchApod({ random = false } = {}) {
-    const endpoint = random 
-        ? `/apod?count=1`
-        : `/apod?`;
-    
-    const response = await nasa.get(endpoint);
+    const { data } = await nasa.get("/apod", {
+        params: random ? { count: 1 } : {}
+    }); 
 
-    return random ? response.data[0] : response.data;
+    return random ? data[0] : data;
 }
 
 function formatExplanation(text) {
