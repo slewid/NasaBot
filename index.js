@@ -73,10 +73,10 @@ function registerAPODCommand(command, { random, hd }) {
 
         try {
             const apod = await fetchApod({ random });
-            sendAPOD(respond, apod, hd);
+            await sendAPOD(respond, apod, hd);
         
         } catch (err) {
-            console.error(err);
+            console.error(err.response?.data || err.message);
 
             await respond({
                 text: "Failed to fetch Astronomy Picture of the day\n" +
