@@ -22,20 +22,11 @@ app.command("/nasabot-help", async ({ ack, respond }) => {
     text:
 `Available Commands:
 /nasabot-ping - Check bot latency
-/nasabot-catfact - Get a cat fact
-/nasabot-apod - Get NASA's astronomy picture of the day`
+/nasabot-random - Get a random date of NASA's astronomy picture of the day
+/nasabot-apod - Get NASA's astronomy picture of the day
+/nasabot-hd-random - Get a random date of NASA's astronomy picture of the day in HD
+/nasabot-hd-apod - Get NASA's astronomy picture of the day in HD`
   });
-});
-
-app.command("/nasabot-catfact", async ({ ack, respond }) => {
-  await ack();
-
-  try {
-    const response = await axios.get("https://catfact.ninja/fact");
-    await respond({ text: `Cat Fact:\n${response.data.fact}` });
-  } catch (err) {
-    await respond({ text: "Failed to fetch a cat fact." });
-  }
 });
 
 app.command("/nasabot-apod", async ({ ack, respond }) => {
@@ -91,6 +82,59 @@ app.command("/nasabot-apod", async ({ ack, respond }) => {
   }
 });
 
+app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get(`https://api.nasa.gov/planetary/apod?api_key=${process.env.APOD_API_KEY}`);
+    const apod = response.data;
+
+    // Limit explanation length
+    const explanation =
+      apod.explanation.length > 500
+        ? apod.explanation.substring(0, 500) + "..."
+        : apod.explanation;
+
+    if (apod.media_type === "image") {
+      await respond({
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text:
+                `*${apod.title}*\n` +
+                `*Date:* ${apod.date}\n\n` +
+                `${explanation}`
+            }
+          },
+          {
+            type: "image",
+            image_url: apod.hdurl,
+            alt_text: apod.title
+          }
+        ]
+      });
+    } else {
+      // Handle videos (e.g., YouTube)
+      await respond({
+        type: "mrkdwn",
+        text:
+          `*${apod.title}*\n` +
+          `Date: ${apod.date}\n\n` +
+          `${explanation}\n\n` +
+          `${apod.url}`
+      });
+    }
+  } catch (err) {
+    console.error(err);
+
+    await respond({
+      text: "Failed to fetch the HD Astronomy Picture of the Day."
+    });
+  }
+});
+
 app.command("/nasabot-random", async ({ ack, respond }) => {
   await ack();
 
@@ -139,6 +183,59 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
     console.error(err);
 
     await respond({
+      text: "Failed to fetch a random HD Astronomy Picture of the Day."
+    });
+  }
+});
+
+app.command("/nasabot-hd-random", async ({ ack, respond }) => {
+  await ack();
+
+  try {
+    const response = await axios.get(`https://api.nasa.gov/planetary/apod?count=1&api_key=${process.env.APOD_API_KEY}`);
+    const apod = response.data[0];
+
+    // Limit explanation length
+    const explanation =
+      apod.explanation.length > 500
+        ? apod.explanation.substring(0, 500) + "..."
+        : apod.explanation;
+
+    if (apod.media_type === "image") {
+      await respond({
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text:
+                `*${apod.title}*\n` +
+                `*Date:* ${apod.date}\n\n` +
+                `${explanation}`
+            }
+          },
+          {
+            type: "image",
+            image_url: apod.hdurl,
+            alt_text: apod.title
+          }
+        ]
+      });
+    } else {
+      // Handle videos (e.g., YouTube)
+      await respond({
+        type: "mrkdwn",
+        text:
+          `*${apod.title}*\n` +
+          `Date: ${apod.date}\n\n` +
+          `${explanation}\n\n` +
+          `${apod.url}`
+      });
+    }
+  } catch (err) {
+    console.error(err);
+
+    await respond({
       text: "Failed to fetch a random Astronomy Picture of the Day."
     });
   }
@@ -148,4 +245,3 @@ app.command("/nasabot-random", async ({ ack, respond }) => {
   await app.start();
   console.log("bot is running!");
 })();
-
