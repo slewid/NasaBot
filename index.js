@@ -67,6 +67,45 @@ async function sendAPOD(respond, apod, hd) {
     }
 }
 
+function registerAPODCommand(command, { random, hd }) {
+    app.command(command, async({ ack, respond }) => {
+        await ack();
+
+        try {
+            const apod = await fetchApod({ random });
+            sendAPOD(respond, apod, hd);
+        
+        } catch (err) {
+            console.error(err);
+
+            await respond({
+                text: "Failed to fetch Astronomy Picture of the day\n" +
+                `${random} : ${hd}`
+            });
+        }
+    })
+}
+
+registerAPODCommand("/nasabot-apod", {
+    random: false,
+    hd: false
+});
+
+registerAPODCommand("/nasabot-hd-apod", {
+    random: false,
+    hd: true
+});
+
+registerAPODCommand("/nasabot-random", {
+    random: true,
+    hd: false
+});
+
+registerAPODCommand("/nasabot-hd-random", {
+    random: true,
+    hd: true
+});
+
 app.command("/nasabot-ping", async ({ command, ack, respond }) => {
   const start = Date.now();
   await ack();
@@ -85,71 +124,6 @@ app.command("/nasabot-help", async ({ ack, respond }) => {
 /nasabot-hd-random - Get a random date of NASA's astronomy picture of the day in HD
 /nasabot-hd-apod - Get NASA's astronomy picture of the day in HD`
   });
-});
-
-app.command("/nasabot-apod", async ({ ack, respond }) => {
-  await ack();
-
-  try {
-    const apod = await fetchApod();
-
-    sendAPOD(respond, apod, false);
-
-  } catch (err) {
-    console.error(err);
-
-    await respond({
-      text: "Failed to fetch the Astronomy Picture of the Day."
-    });
-  }
-});
-
-app.command("/nasabot-hd-apod", async ({ ack, respond }) => {
-  await ack();
-
-  try {
-    const apod = await fetchApod();
-    sendAPOD(respond, apod, true);
-
-  } catch (err) {
-    console.error(err);
-
-    await respond({
-      text: "Failed to fetch the HD Astronomy Picture of the Day."
-    });
-  }
-});
-
-app.command("/nasabot-random", async ({ ack, respond }) => {
-  await ack();
-
-  try {
-    const apod = await fetchApod( {random: true} );
-    sendAPOD(respond, apod, false);
-    
-  } catch (err) {
-    console.error(err);
-
-    await respond({
-      text: "Failed to fetch a random HD Astronomy Picture of the Day."
-    });
-  }
-});
-
-app.command("/nasabot-hd-random", async ({ ack, respond }) => {
-  await ack();
-
-  try {
-    const apod = await fetchApod({random: true});
-    sendAPOD(respond, apod, true);
-    
-  } catch (err) {
-    console.error(err);
-
-    await respond({
-      text: "Failed to fetch a random Astronomy Picture of the Day."
-    });
-  }
 });
 
 (async () => {
